@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+
+import backtrader as bt
+from algo_base import *
+import importlib
+import json
+
+prefix = '/opt/ml/'
+hyper_params_path = os.path.join(prefix, 'input/config/hyperparameters.json')
+with open(hyper_params_path, 'r') as f:
+    config = json.load(f)
+
+algo_name=config['algo_name']
+print("import:%s" % algo_name)
+
+cls = getattr(importlib.import_module(algo_name), 'MyStrategy')
+print(cls)
+
+algo=AlgoStrategy(config,cls)
+algo.run()
