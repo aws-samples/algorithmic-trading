@@ -4,7 +4,7 @@ As part of this workshop, participants will learn how to build, backtest, and ho
 
 ![chart](assets/chart.png)
 
-_Time Commitment Expectations: This workshop was created to be completed in approximately 1 hour._
+_Time Commitment Expectation: This workshop was created to be completed in approximately 1 hour._
 
 ## Considerations for Each Role
 As the team lead on this lean team of one, you'll need to wear multiple hats.  Below are some things we'll cover from the perspective of each role:
