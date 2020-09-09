@@ -18,10 +18,10 @@ RUN pip install pandas
 RUN pip install flask
 RUN pip install gevent
 RUN pip install gunicorn
-RUN pip install tensorflow
+RUN pip install tensorflow==2.2.0
 RUN pip install keras
 RUN pip install backtrader
-RUN pip install matplotlib
+RUN pip install matplotlib==3.2.2
 RUN pip install ta-lib
 RUN pip install boto3
 
