@@ -151,7 +151,7 @@ class StrategyTemplate(bt.Strategy):
                 
     def next(self):
         dt=self.datas[0].datetime.datetime(0)
-        print("[NEXT]:%s:close=%s" % (dt,self.dataclose[0]))
+        #print("[NEXT]:%s:close=%s" % (dt,self.dataclose[0]))
         
         #SOM
         if self.lastMonth!=dt.month:
