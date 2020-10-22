@@ -29,10 +29,11 @@ def save_stock_data(stk,history,abbreviation):
     p=abbreviation.index(stk)
     h=history[p]
     tData=[]
-    hData=['dt','open','low','high','close','vol']
+    hData=['dt','sym','open','high','low','close','vol']
     for x in range(0,h.shape[0]):
         row=[]
         row.append(index_to_date(x))
+        row.append(stk)
         v=h[x]
         for y in range(0,len(v)):
             row.append(v[y])
