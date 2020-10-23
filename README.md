@@ -37,42 +37,42 @@ YOUR USE OF THE EXTERNAL DEPENDENCIES IS AT YOUR SOLE RISK. IN NO EVENT WILL AMA
 ** backtrader; version 1.9.74.123 -- https://www.backtrader.com/
 </details>
 
-## Step 0: Set up the environment
+## Step 0: Set up environment
 
-We deploy the base components via CloudFormation script:
-[Launch](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=algo&templateURL=https://github.com/aws-samples/algorithmic-trading/raw/master/0_Setup/ReferenceArchitecture-CF.json)
+For the base infrastructure components (SageMaker Notebook, Athena, Glue Tables, S3 Bucket), deploy the following [CloudFormation template](https://github.com/aws-samples/algorithmic-trading/raw/master/0_Setup/ReferenceArchitecture-CF.json).
+First go to [CloudFormation](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=algo) and upload the downloaded CF template. Verify that stackName is **algo** before creating the stack and acknowledge that IAM changes will be made.
 
-This will take ca. 5 minutes.
+This step will take ca. 5 minutes.
 
-## Step 1: Load Historical Market Data
+## Step 1: Load Historical Price Data
 
-We have two different data source options for this workshop. Pick one of these options. Intraday data is larger and will take more time to download (ca. 15 mins).
-1. Daily EOD Stock Price Data from AWS Data Exchange
-1. Intraday Stock Price Data from Deutsche Börse Public Dataset
+Here are a few data source options for this workshop. The daily datasets can be downloaded and generated in a few minutes, for the intraday dataset, please plan for at least 15 mins.
+1. Sample Daily EOD Stock Price Data (from AWS Data Exchange or public data source)
+1. Intraday Stock Price Data (from Deutsche Börse Public Dataset)
 
-### Data Option 1: Daily EOD Stock Price Data (from AWS Data Exchange)
+### Option 1a: Sample Daily EOD Stock Price Data (via AWS Data Exchange)
 
-For this workshop we want to download the following [dataset](https://aws.amazon.com/marketplace/pp/prodview-e2aizdzkos266#overview). 
+If you want to use AWS Data Exchange, you can download the following [dataset](https://aws.amazon.com/marketplace/pp/prodview-e2aizdzkos266#overview) for example. There are multiple options available, and we picked this for demonstration purposes. 
 
-To download this dataset via AWS Data Exchange, complete a subscription request, provide the required information for Company Name, Name, Email Address, and Intended Use Case and send the subscription request to the provider. Once the provider confirms the subscription, you can navigate to [AWS Data Exchange/My subscriptions/Entitled data](https://us-east-1.console.aws.amazon.com/dataexchange/home?region=us-east-1#/entitled-data).
-
+To download this dataset, complete a subscription request first where you provide the required information for Company Name, Name, Email Address, and Intended Use Case. Once the provider confirms the subscription, you can navigate to [AWS Data Exchange/My subscriptions/Entitled data](https://console.aws.amazon.com/dataexchange/home?#/entitled-data).
 Then choose the latest revision for this subscription, select all assets, and click on **Export to Amazon S3**. In the new window select the root folder of the S3 bucket that starts with "*algo-data-*". Then click on **Export** and wait until your export job is completed.
 
-In order to use this dataset for algorithmic trading, we want to standardize it to CSV files with the following columns: **dt, sym, open, high, low, close, vol**.
+In order to use this dataset for algorithmic trading, we want to standardize it to a CSV file with the following columns: **dt, sym, open, high, low, close, vol**.
+Once you have successfully exported the dataset, please run the the following Jupyter notebook to format the dataset and store it in the ***hist_data_daily*** folder of your S3 bucket. Go to [Amazon SageMaker/Notebook/Notebook instances](https://console.aws.amazon.com/sagemaker/home?#/notebook-instances), then click on **Open Jupyter** for the provisioned notebook instance. Run all the cells in **1_Data/Load_Hist_Data_Daily.ipynb**.
 
-If you have successfully exported the dataset, please run the the following Jupyter notebook to format the data and store it in the ***hist_data_daily*** folder of your S3 bucket. Go to [Amazon SageMaker/Notebook/Notebook instances](https://us-east-1.console.aws.amazon.com/sagemaker/home?region=us-east-1#/notebook-instances), then click on ***Open Jupyter*** for the provisioned notebook instance. Run all the cells in **1_Data/Load_Hist_Data_Daily.ipynb**.
+### Option 1b: Sample Daily EOD Stock Price Data (from public data source)
 
-If you are not able to exported the dataset, you can run instead the following Jupyter notebook that loads EOD price data from another public source. Run all the cells in **1_Data/Load_Hist_Data_Daily_Public.ipynb**.
+If you are not able to use AWS Data Exchange in your account, you can run instead the following Jupyter notebook that generates some sample EOD price data from a public data souce. Run all the cells in **1_Data/Load_Hist_Data_Daily_Public.ipynb**.
 
-### Data Option 2: Intraday Stock Price Data (from Deutsche Börse Public Dataset) 
+### Option 2: Intraday Stock Price Data (from Deutsche Börse Public Dataset) 
 
-For this dataset, please run the the following Jupyter notebook to download the data from the public S3 bucket and format the data and store it in the ***hist_data_intrday*** folder of your S3 bucket. Go to [Amazon SageMaker/Notebook/Notebook instances](https://us-east-1.console.aws.amazon.com/sagemaker/home?region=us-east-1#/notebook-instances), then click on ***Open Jupyter*** for the provisioned notebook instance. Run all the cells in **1_Data/Load_Hist_Data_Intraday.ipynb**.
+For this dataset, please run the the following Jupyter notebook to download the data from the public S3 bucket and format the data and store it in the ***hist_data_intraday*** folder of your S3 bucket. Go to [Amazon SageMaker/Notebook/Notebook instances](https://console.aws.amazon.com/sagemaker/home?#/notebook-instances), then click on **Open Jupyter** for the provisioned notebook instance. Run all the cells in **1_Data/Load_Hist_Data_Intraday.ipynb**.
 
 Please note that this will take ca. 15 min.
 
-## Step 2: Backtest a trend following strategy (or backtest directly ML-based strategies in Step 3)
+## Step 2: Backtest a trend following strategy (or move directly to Step 3)
 
-In this module, we backtest a trend following strategy with Amazon SageMaker.
+In this module, we backtest a trend following strategy on daily price data with Amazon SageMaker. For these notebooks, please ensure that you have daily price data loaded.
 
 You can choose between the following trading strategies:
 1. **Simple Moving Average Strategy**: **2_Strategies/Strategy SMA.ipynb**
@@ -83,20 +83,14 @@ Select the Jupyter Notebook for backtesting the strategy in the folder **2_Strat
 
 ## Step 3: Backtest a machine-learning based strategy
 
-In this module, we backtest a machine-learning strategy with Amazon SageMaker.
+In this module, we backtest a machine-learning strategy with Amazon SageMaker on daily or intraday price data. Please ensure that you have daily or intraday price data loaded before running the corresponding notebooks.
 
-Usually you will have two parts, one for training the machine learning model, and one for backtesting the strategy. You can run both notebooks or skip the training of the model as there is already a trained model available in the repository:
+Usually you will have two parts, one for training the machine learning model, and one for backtesting the strategy. You can run both notebooks or skip the training of the model as a trained model is already available in the repository:
 
 **ML Long/Short Prediction Strategy**
-* Model Training: **3_Models/Train_Model_Forecast.ipynb**
-* Strategy Backtesting: **2_Strategies/Strategy_Forecast.ipynb**
-
-### Step 3.1 Train machine-learning model (you can skip this as a trained model is already provided)
-
-Select the Jupyter Notebook for training the model in the folder **3_Models** and run it from your Amazon SageMaker Notebook instance. In the instructions, there is guidance on how to optimize the model.
-
-### Step 3.2 Backtest machine-learning based strategy
-
-Select the Jupyter Notebook for backtesting the strategy in the folder **2_Strategies** and run it from your Amazon SageMaker Notebook instance. In the instructions, there is guidance on how to optimize the strategy.
+* Model Training (Daily Price Data) (Optional): **3_Models/Train_Model_Forecast.ipynb**
+* Strategy Backtesting (Daily Price Data): **2_Strategies/Strategy_Forecast.ipynb**
+* Model Training (Intraday Price Data) (Optional): **3_Models/Train_Model_Forecast_Intraday.ipynb**
+* Strategy Backtesting (Intraday Price Data): **2_Strategies/Strategy_Forecast_Intraday.ipynb**
 
 ### Congratulations! You have completed the workshop. Don't forget to cleanup the resources if you use your own account in this workshop.
