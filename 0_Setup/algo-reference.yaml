@@ -1,0 +1,584 @@
+Description: >
+  This template deploys the algorithmic trading reference architecture
+  
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+    Default: algo
+
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 10.111.0.0/16
+
+  PublicSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
+    Type: String
+    Default: 10.111.10.0/24
+
+  PublicSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the second Availability Zone
+    Type: String
+    Default: 10.111.11.0/24
+
+  PrivateSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private subnet in the first Availability Zone
+    Type: String
+    Default: 10.111.20.0/24
+
+  PrivateSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private subnet in the second Availability Zone
+    Type: String
+    Default: 10.111.21.0/24
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Ref PublicSubnet1CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      CidrBlock: !Ref PublicSubnet2CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Ref PrivateSubnet1CIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      CidrBlock: !Ref PrivateSubnet2CIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
+
+  NatGateway1EIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
+
+  NatGateway2EIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
+
+  NatGateway1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGateway1EIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+
+  NatGateway2:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGateway2EIP.AllocationId
+      SubnetId: !Ref PublicSubnet2
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Routes
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Routes (AZ1)
+
+  DefaultPrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway1
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      SubnetId: !Ref PrivateSubnet1
+
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Routes (AZ2)
+
+  DefaultPrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway2
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      SubnetId: !Ref PrivateSubnet2
+
+  ECR:
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: !Sub ${EnvironmentName}_ecr
+
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    
+  AlgorithmicTradingInstance:
+    Type: AWS::SageMaker::NotebookInstance
+    Properties:
+      InstanceType: ml.t2.medium
+      DefaultCodeRepository: https://github.com/aws-samples/algorithmic-trading
+      RoleArn: !GetAtt 'SageMakerExecutionRole.Arn'
+
+  S3Policy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: S3 Permission
+      Path: /
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+              - s3:ListBucket
+            Resource:
+              - !Sub
+                - arn:aws:s3:::${S3Bucket}/*
+                - S3Bucket: !Ref 'S3Bucket'
+                
+  SageMakerExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - sagemaker.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
+        - arn:aws:iam::aws:policy/AmazonAthenaFullAccess
+        - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess 
+        - arn:aws:iam::aws:policy/AmazonECS_FullAccess
+        - !Ref 'S3Policy'
+
+  ECSHostSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref 'VPC'
+      GroupDescription: Access to the ECS hosts and the tasks/containers that run on them
+      SecurityGroupIngress:
+        # Allow access from anywhere to our ECS services
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: -1
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-ECS
+  
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+              
+  AlgoExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ecs-tasks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+  
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+        ClusterName: !Ref EnvironmentName
+        
+  GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+        CatalogId: !Ref 'AWS::AccountId'
+        DatabaseInput:
+          Name: algo_data
+
+  GlueHistDataDaily:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref 'AWS::AccountId'
+      DatabaseName: !Ref 'GlueDatabase'
+      TableInput:
+        Description: Daily Price Data
+        Name: hist_data_daily
+        Parameters:
+          classification: csv
+          has_encrypted_data: false
+        StorageDescriptor:
+          Columns:
+            - Name: dt
+              Type: string
+            - Name: sym
+              Type: string
+            - Name: open
+              Type: double
+            - Name: high
+              Type: double
+            - Name: low
+              Type: double
+            - Name: close
+              Type: double
+            - Name: vol
+              Type: double
+          Compressed: false
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Join
+            - ''
+            - - s3://
+              - !Ref 'S3Bucket'
+              - /hist_data_daily
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+            Parameters:
+              field.delim: ','
+              skip.header.line.count: '1'
+          StoredAsSubDirectories: false
+        TableType: EXTERNAL_TABLE
+
+  GlueHistDataIntraday:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref 'AWS::AccountId'
+      DatabaseName: !Ref 'GlueDatabase'
+      TableInput:
+        Description: Intraday Price Data
+        Name: hist_data_intraday
+        Parameters:
+          classification: csv
+          has_encrypted_data: false
+        StorageDescriptor:
+          Columns:
+            - Name: dt
+              Type: string
+            - Name: sym
+              Type: string
+            - Name: open
+              Type: double
+            - Name: high
+              Type: double
+            - Name: low
+              Type: double
+            - Name: close
+              Type: double
+            - Name: vol
+              Type: double
+          Compressed: false
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Join
+            - ''
+            - - s3://
+              - !Ref 'S3Bucket'
+              - /hist_data_intraday
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+            Parameters:
+              field.delim: ','
+              skip.header.line.count: '1'
+          StoredAsSubDirectories: false
+        TableType: EXTERNAL_TABLE
+  
+  AthenaWorkgroup:
+    Type: AWS::Athena::WorkGroup
+    Properties:
+      Name: MyWorkGroup
+      Description: AlgoWorkgroup
+      RecursiveDeleteOption: true
+      State: ENABLED
+      WorkGroupConfiguration:
+        RequesterPaysEnabled: true
+        ResultConfiguration:
+          OutputLocation: !Join
+            - ''
+            - - s3://
+              - !Ref 'S3Bucket'
+              - /results/
+
+  AlgoHistDataDaily:
+    Type: AWS::Athena::NamedQuery
+    Properties:
+      Database: !Ref 'GlueDatabase'
+      QueryString: !Join
+        - ''
+        - - select * from algo_data.
+          - !Ref 'GlueHistDataDaily'
+          - ' limit 10;'
+      Name: HistDataDaily
+
+  AlgoHistDataIntraday:
+    Type: AWS::Athena::NamedQuery
+    Properties:
+      Database: !Ref 'GlueDatabase'
+      QueryString: !Join
+        - ''
+        - - select * from algo_data.
+          - !Ref 'GlueHistDataIntraday'
+          - ' limit 10;'
+      Name: HistDataIntraday
+
+  GlueTableFeedDB:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref 'AWS::AccountId'
+      DatabaseName: !Ref 'GlueDatabase'
+      TableInput:
+        Description: Deutsche Boerse Xetra PDS
+        Name: market_feed_deutsche_boerse
+        Parameters:
+          classification: csv
+          has_encrypted_data: false
+        StorageDescriptor:
+          Columns:
+            - Name: isin
+              Type: string
+            - Name: mnemonic
+              Type: string
+            - Name: securitydesc
+              Type: string
+            - Name: securitytype
+              Type: string
+            - Name: currency
+              Type: string
+            - Name: securityid
+              Type: bigint
+            - Name: date
+              Type: string
+            - Name: time
+              Type: string
+            - Name: startprice
+              Type: double
+            - Name: maxprice
+              Type: double
+            - Name: minprice
+              Type: double
+            - Name: endprice
+              Type: double
+            - Name: tradedvolume
+              Type: bigint
+            - Name: numberoftrades
+              Type: bigint
+          Compressed: false
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Join
+            - ''
+            - - s3://
+              - !Ref 'S3Bucket'
+              - /feed/deutsche-boerse-xetra-pds
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+            Parameters:
+              field.delim: ','
+              skip.header.line.count: '1'
+          StoredAsSubDirectories: false
+        PartitionKeys:
+            - Name: year
+              Type: bigint
+            - Name: month
+              Type: bigint
+            - Name: day
+              Type: bigint       
+        TableType: EXTERNAL_TABLE
+  
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName: algo
+      RetentionInDays: 7
+
+Outputs:
+  VPC:
+    Description: A reference to the created VPC
+    Value: !Ref VPC
+    Export:
+      Name: AlgorithmicTrading-VPC
+
+  PublicSubnets:
+    Description: A list of the public subnets
+    Value: !Join [",", [!Ref PublicSubnet1, !Ref PublicSubnet2]]
+    Export:
+      Name: AlgorithmicTrading-PublicSubnets
+
+  PrivateSubnets:
+    Description: A list of the private subnets
+    Value: !Join [",", [!Ref PrivateSubnet1, !Ref PrivateSubnet2]]
+    Export:
+      Name: AlgorithmicTrading-PrivateSubnets
+
+  PublicSubnet1:
+    Description: A reference to the public subnet in the 1st Availability Zone
+    Value: !Ref PublicSubnet1
+    Export:
+      Name: AlgorithmicTrading-PublicSubnet1
+
+  PublicSubnet2:
+    Description: A reference to the public subnet in the 2nd Availability Zone
+    Value: !Ref PublicSubnet2
+    Export:
+      Name: AlgorithmicTrading-PublicSubnet2
+
+  PrivateSubnet1:
+    Description: A reference to the private subnet in the 1st Availability Zone
+    Value: !Ref PrivateSubnet1
+    Export:
+      Name: AlgorithmicTrading-PrivateSubnet1
+
+  PrivateSubnet2:
+    Description: A reference to the private subnet in the 2nd Availability Zone
+    Value: !Ref PrivateSubnet2
+    Export:
+      Name: AlgorithmicTrading-PrivateSubnet2
+
+  ECR:
+    Description: A reference to ECR
+    Value: !Ref ECR
+    Export:
+      Name: AlgorithmicTrading-ECR
+
+  S3Bucket:
+    Description: A reference to S3 Bucket
+    Value: !Ref S3Bucket
+    Export:
+      Name: AlgorithmicTrading-S3Bucket
+
+  ECSHostSecurityGroup:
+    Description: ECSHostSecurityGroup
+    Value: !Ref ECSHostSecurityGroup
+    Export:
+      Name: AlgorithmicTrading-ECSHostSecurityGroup
+
+  ECSTaskExecutionRole:
+    Description: ECSTaskExecutionRole
+    Value: !Ref ECSTaskExecutionRole
+    Export:
+      Name: AlgorithmicTrading-ECSTaskExecutionRole
+
+  AlgoExecutionRole:
+    Description: AlgoExecutionRole ARN
+    Value: !GetAtt 'AlgoExecutionRole.Arn'
+    Export:
+      Name: AlgorithmicTrading-AlgoExecutionRole-ARN
+
+  Cluster:
+    Description: A reference to the ECS cluster
+    Value: !Ref ECSCluster
+    Export:
+      Name: AlgorithmicTrading-ECSCluster
