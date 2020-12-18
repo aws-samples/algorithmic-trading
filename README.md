@@ -20,6 +20,10 @@ As the team lead on this lean team of one, you'll need to wear multiple hats.  B
 
 At minimum, at the end of this workshop, you will have an understanding how to load historical price data from external market data sources like AWS Data Exchange into S3. You get familiar how to store price data in S3 and expose it via Glue Data Catalog and Athena, how to backtested trading strategies using Amazon SageMaker, and how to train machine learning models that are used in trading strategies. You also get a basic understand how trading strategies using trend following and machine learning are developed with Python and can be optimized for better performance.
 
+## Architecture
+
+![chart](assets/chart.png)
+
 ## License
 
 This library is licensed under the MIT-0 License. See the LICENSE file.
@@ -40,7 +44,7 @@ YOUR USE OF THE EXTERNAL DEPENDENCIES IS AT YOUR SOLE RISK. IN NO EVENT WILL AMA
 ## Step 0: Set up environment
 
 For the base infrastructure components (SageMaker Notebook, Athena, Glue Tables, S3 Bucket), deploy the following [CloudFormation template](https://github.com/aws-samples/algorithmic-trading/raw/master/0_Setup/ReferenceArchitecture-CF.json).
-First go to [CloudFormation](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=algo) and upload the downloaded CF template. Verify that stackName is **algo** before creating the stack and acknowledge that IAM changes will be made.
+First go to [CloudFormation](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=algo) and upload the downloaded CF template. Verify that stackName is **algotrading** before creating the stack and acknowledge that IAM changes will be made.
 
 This step will take ca. 5 minutes.
 
