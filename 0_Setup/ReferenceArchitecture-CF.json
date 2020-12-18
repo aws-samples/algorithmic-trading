@@ -260,7 +260,7 @@
         "aws:cdk:path": "AlgoStack/AlgoHistDataIntradayQuery"
       }
     },
-		"AlogrithmicTradingInstance": {
+		"AlgorithmicTradingInstance": {
 		"Type": "AWS::SageMaker::NotebookInstance",
 		"Properties": {
 			"InstanceType": "ml.t2.large",
