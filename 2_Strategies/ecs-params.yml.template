@@ -1,0 +1,21 @@
+version: 1
+task_definition:
+  task_execution_role: $TASK_ROLE
+  task_role_arn: $ROLE_ARN
+  ecs_network_mode: awsvpc
+  task_size:
+    mem_limit: 512
+    cpu_limit: 256
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets:
+        - $SUBNET1
+        - $SUBNET2
+      security_groups:
+        - $SG
+      assign_public_ip: DISABLED
+  service_discovery:
+    private_dns_namespace:
+        vpc: $VPC
+        name: algo

@@ -1,0 +1,13 @@
+version: "3"
+services:
+  $SERVICE:
+    image: $IMAGE
+    environment:
+      - AWS_DEFAULT_REGION=$REGION
+      - ALGO_CMD=train
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: algo
+        awslogs-region: $REGION
+        awslogs-stream-prefix: $SERVICE
