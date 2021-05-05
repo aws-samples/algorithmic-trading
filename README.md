@@ -97,4 +97,8 @@ Usually you will have two parts, one for training the machine learning model, an
 * Model Training (Intraday Price Data) (Optional): **3_Models/Train_Model_Forecast_Intraday.ipynb**
 * Strategy Backtesting (Intraday Price Data): **2_Strategies/Strategy_Forecast_Intraday.ipynb**
 
+## Step 4: What-if Scenarios with Amazon FinSpace (optional)
+
+* Run the following notebook: **2_Strategies/Strategy_WhatIfScenarios.ipynb**
+
 ### Congratulations! You have completed the workshop. Don't forget to cleanup the resources if you use your own account in this workshop.
