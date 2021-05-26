@@ -43,8 +43,8 @@ YOUR USE OF THE EXTERNAL DEPENDENCIES IS AT YOUR SOLE RISK. IN NO EVENT WILL AMA
 
 ## Step 0: Set up environment
 
-For the base infrastructure components (SageMaker Notebook, Athena, Glue Tables, S3 Bucket), deploy the following [CloudFormation template](https://github.com/aws-samples/algorithmic-trading/raw/master/0_Setup/algo-reference.yaml).
-First go to [CloudFormation](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=algotrading) and upload the downloaded CF template. Verify that stackName is **algotrading** before creating the stack and acknowledge that IAM changes will be made.
+1. Create a new unique S3 bucket that starts with **algotrading-** (e.g. **algotrading-{YYYY-MM-DD-XYZ}**) that we use for storing external price data. 
+1. For the base infrastructure components (SageMaker Notebook, Athena, Glue Tables), deploy the following [CloudFormation template](https://github.com/aws-samples/algorithmic-trading/raw/master/0_Setup/algo-reference.yaml).First go to [CloudFormation](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=algotrading) and upload the downloaded CF template. For the S3 bucket specify the previously created bucket name. Verify that stackName is **algotrading** before creating the stack and acknowledge that IAM changes will be made.
 
 This step will take ca. 5 minutes.
 

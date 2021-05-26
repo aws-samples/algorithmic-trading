@@ -32,6 +32,11 @@ Parameters:
     Type: String
     Default: 10.111.21.0/24
 
+  S3Bucket:
+    Description: Please specify your S3 bucket
+    Type: String
+    
+
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -197,14 +202,6 @@ Resources:
     Type: AWS::ECR::Repository
     Properties: 
       RepositoryName: !Sub ${EnvironmentName}_ecr
-
-  S3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      VersioningConfiguration:
-        Status: Enabled
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
     
   AlgorithmicTradingInstance:
     Type: AWS::SageMaker::NotebookInstance
