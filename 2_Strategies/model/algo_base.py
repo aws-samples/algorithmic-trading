@@ -24,6 +24,7 @@ class AlgoStrategy():
         self.config=config
         
         self.cerebro = bt.Cerebro()        
+        strategy.config=config
         strategy.init_broker(self.cerebro.broker)
         strategy.add_data(self.cerebro)
         self.cerebro.addstrategy(strategy)
