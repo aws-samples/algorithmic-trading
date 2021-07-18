@@ -168,8 +168,8 @@ Resources:
       RetentionPeriodHours: 8760
       ShardCount: 1
       StreamEncryption:
-            EncryptionType: KMS 
-            KeyId: alias/aws/kinesis 
+          EncryptionType: KMS 
+          KeyId: alias/aws/kinesis 
 
   S3SourceDMSRole:
     Type: 'AWS::IAM::Role'
