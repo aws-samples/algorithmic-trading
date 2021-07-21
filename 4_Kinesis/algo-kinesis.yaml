@@ -329,6 +329,7 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
         - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess 
         - arn:aws:iam::aws:policy/AmazonKinesisReadOnlyAccess
+        - arn:aws:iam::aws:policy/AmazonECS_FullAccess
         - !Ref 'S3Policy'
 
   S3Policy:
