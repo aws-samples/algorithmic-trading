@@ -330,6 +330,7 @@ Resources:
         - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess 
         - arn:aws:iam::aws:policy/AmazonKinesisReadOnlyAccess
         - arn:aws:iam::aws:policy/AmazonECS_FullAccess
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
         - !Ref 'S3Policy'
 
   S3Policy:
