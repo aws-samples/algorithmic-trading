@@ -10,7 +10,7 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
 RUN wget https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz && tar -xzf ta-lib-0.4.0-src.tar.gz && cd ta-lib/ && ./configure --prefix=/usr && make && make install && cd ../ && rm -rf ta-lib && rm ta-lib-0.4.0-src.tar.gz
 
 # Install all of the packages
-RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py
+# RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py
 RUN pip install numpy
 RUN pip install scipy
 RUN pip install scikit-learn
