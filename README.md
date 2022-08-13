@@ -41,6 +41,15 @@ YOUR USE OF THE EXTERNAL DEPENDENCIES IS AT YOUR SOLE RISK. IN NO EVENT WILL AMA
 ** backtrader; version 1.9.74.123 -- https://www.backtrader.com/
 </details>
 
+## References
+
+- Reference Architecture for Algorithmic Trading (Dec 2020): https://d1.awsstatic.com/architecture-diagrams/ArchitectureDiagrams/algorithmic-trading-ra.pdf
+- Blog Post (Feb 2021): Algorithmic Trading with SageMaker and AWS Data Exchange: https://aws.amazon.com/blogs/industries/algorithmic-trading-on-aws-with-amazon-sagemaker-and-aws-data-exchange/
+- Blog Post (June 2021): How to run what-if scenarios for trading strategies with Amazon FinSpace: https://aws.amazon.com/blogs/industries/how-to-run-what-if-scenarios-for-trading-strategies-with-amazon-finspace/
+- Blog Post (July 2021): Algorithmic Trading with SageMaker: https://aws.amazon.com/blogs/machine-learning/building-algorithmic-trading-strategies-with-amazon-sagemaker/
+- Blog Post (Jan 2022): Backtest trading strategies with Amazon Kinesis Data Streams long-term retention and Amazon SageMaker: https://aws.amazon.com/blogs/big-data/backtest-trading-strategies-with-amazon-kinesis-data-streams-long-term-retention-and-amazon-sagemaker/
+- YouTube (Dec 2020): Automated Analysis of Financial Data and Algorithmic Trading: https://www.youtube.com/watch?v=i0izMuiU12I
+
 ## Step 0: Set up environment
 
 1. Create a new unique S3 bucket that starts with "**algotrading-**" (e.g. "**algotrading-YYYY-MM-DD-XYZ**") that we use for storing external price data. 
