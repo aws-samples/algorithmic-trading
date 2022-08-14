@@ -1,0 +1,131 @@
+Resources:
+  GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+        CatalogId: !Ref 'AWS::AccountId'
+        DatabaseInput:
+          Name: algo_data
+
+  GlueHistDataDaily:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref 'AWS::AccountId'
+      DatabaseName: !Ref 'GlueDatabase'
+      TableInput:
+        Description: Daily Price Data
+        Name: hist_data_daily
+        Parameters:
+          classification: csv
+          has_encrypted_data: false
+        StorageDescriptor:
+          Columns:
+            - Name: dt
+              Type: string
+            - Name: sym
+              Type: string
+            - Name: open
+              Type: double
+            - Name: high
+              Type: double
+            - Name: low
+              Type: double
+            - Name: close
+              Type: double
+            - Name: vol
+              Type: double
+          Compressed: false
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Join
+            - ''
+            - - s3://
+              - !ImportValue algotrading-s3bucket
+              - /hist_data_daily
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+            Parameters:
+              field.delim: ','
+              skip.header.line.count: '1'
+          StoredAsSubDirectories: false
+        TableType: EXTERNAL_TABLE
+
+  GlueHistDataIntraday:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref 'AWS::AccountId'
+      DatabaseName: !Ref 'GlueDatabase'
+      TableInput:
+        Description: Intraday Price Data
+        Name: hist_data_intraday
+        Parameters:
+          classification: csv
+          has_encrypted_data: false
+        StorageDescriptor:
+          Columns:
+            - Name: dt
+              Type: string
+            - Name: sym
+              Type: string
+            - Name: open
+              Type: double
+            - Name: high
+              Type: double
+            - Name: low
+              Type: double
+            - Name: close
+              Type: double
+            - Name: vol
+              Type: double
+          Compressed: false
+          InputFormat: org.apache.hadoop.mapred.TextInputFormat
+          Location: !Join
+            - ''
+            - - s3://
+              - !ImportValue algotrading-s3bucket
+              - /hist_data_intraday
+          OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+            Parameters:
+              field.delim: ','
+              skip.header.line.count: '1'
+          StoredAsSubDirectories: false
+        TableType: EXTERNAL_TABLE
+  
+  AthenaWorkgroup:
+    Type: AWS::Athena::WorkGroup
+    Properties:
+      Name: MyWorkGroup
+      Description: AlgoWorkgroup
+      RecursiveDeleteOption: true
+      State: ENABLED
+      WorkGroupConfiguration:
+        RequesterPaysEnabled: true
+        ResultConfiguration:
+          OutputLocation: !Join
+            - ''
+            - - s3://
+              - !ImportValue algotrading-s3bucket
+              - /results/
+
+  AlgoHistDataDaily:
+    Type: AWS::Athena::NamedQuery
+    Properties:
+      Database: !Ref 'GlueDatabase'
+      QueryString: !Join
+        - ''
+        - - select * from algo_data.
+          - !Ref 'GlueHistDataDaily'
+          - ' limit 10;'
+      Name: HistDataDaily
+
+  AlgoHistDataIntraday:
+    Type: AWS::Athena::NamedQuery
+    Properties:
+      Database: !Ref 'GlueDatabase'
+      QueryString: !Join
+        - ''
+        - - select * from algo_data.
+          - !Ref 'GlueHistDataIntraday'
+          - ' limit 10;'
+      Name: HistDataIntraday

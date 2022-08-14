@@ -50,6 +50,21 @@ YOUR USE OF THE EXTERNAL DEPENDENCIES IS AT YOUR SOLE RISK. IN NO EVENT WILL AMA
 - Blog Post (Jan 2022): Backtest trading strategies with Amazon Kinesis Data Streams long-term retention and Amazon SageMaker: https://aws.amazon.com/blogs/big-data/backtest-trading-strategies-with-amazon-kinesis-data-streams-long-term-retention-and-amazon-sagemaker/
 - YouTube (Dec 2020): Automated Analysis of Financial Data and Algorithmic Trading: https://www.youtube.com/watch?v=i0izMuiU12I
 
+---
+
+## Instructions using SageMaker Studio 
+
+A newer version of this workshop has been developed for SageMaker Studio and is available in folder **5_SageMakerStudio**. 
+
+1. Setup SageMaker Studio with sufficient permissions.
+1. Run Jupyter Notebook: **1_Setup.ipynb**: This will setup S3 bucket, Glue Data Catalog Schema, Athena Workgroup. For SageMaker Studio, a custom kernel is built and attached.
+1. Run Jupyter Notebook: **2_Load_Data.ipynb**: This will load daily stock price data into the S3 bucket.
+1. Run Jupyter Notebook: **3_Backtest_Strategy.ipynb**: Backtest strategy in SageMaker Studio and find optimal parameters.
+
+---
+
+## Instructions using SageMaker Notebooks
+
 ## Step 0: Set up environment
 
 1. Create a new unique S3 bucket that starts with "**algotrading-**" (e.g. "**algotrading-YYYY-MM-DD-XYZ**") that we use for storing external price data. 
@@ -97,8 +112,11 @@ Usually you will have two parts, one for training the machine learning model, an
 * Model Training (Daily Price Data) (Optional): **3_Models/Train_Model_Forecast.ipynb**
 * Strategy Backtesting (Daily Price Data): **2_Strategies/Strategy_Forecast.ipynb**
 
-## Step 4: What-if Scenarios with Amazon FinSpace (optional)
+---
 
-* Run the following notebook: **2_Strategies/Strategy_WhatIfScenarios.ipynb**
+## Instructions using Amazon FinSpace
+
+1. Setup Amazon FinSpace
+1. Run the following notebook: **2_Strategies/Strategy_WhatIfScenarios.ipynb** in Amazon FinSpace
 
 ### Congratulations! You have completed the workshop. Don't forget to cleanup the resources if you use your own account in this workshop.

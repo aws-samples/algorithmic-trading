@@ -1,0 +1,12 @@
+{
+    "DefaultUserSettings": {
+        "KernelGatewayAppSettings": {
+            "CustomImages": [
+                {
+                    "ImageName": "algotrading",
+                    "AppImageConfigName": "algotrading-config"
+                }
+            ]
+        }
+    }
+}
