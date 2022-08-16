@@ -5,6 +5,8 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Properties:
+      VersioningConfiguration:
+        Status: Enabled
       AccessControl: Private 
       BucketEncryption:
         ServerSideEncryptionConfiguration:
